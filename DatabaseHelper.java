@@ -5,9 +5,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
- * Created by David on 24/04/2017.
- */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "Stats.db";
@@ -44,26 +41,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean insertData(int height, int weight, int activityLevel){
+    public boolean insertData(int height, int weight, int activityLevel, String workout_name, String intensity, int length, int calories_burned){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_2, height);
         contentValues.put(COL_3, weight);
         contentValues.put(COL_4, activityLevel);
-        long result = db.insert(TABLE_NAME, null, contentValues);
-        if (result == -1){
-            return false;
-        }
-        else
-            return true;
-    }
-    public boolean insertData2(String workout_name, String intensity, int length, int calories_burned){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
         contentValues.put(COL_5, workout_name);
         contentValues.put(COL_6, intensity);
         contentValues.put(COL_7, length);
         contentValues.put(COL_8, calories_burned)
+        long result = db.insert(TABLE_NAME, null, contentValues);
         long result = db.insert(TABLE_NAME2, null, contentValues);
         if (result == -1){
             return false;
@@ -71,6 +59,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         else
             return true;
     }
-
-
 }
