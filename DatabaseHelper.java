@@ -2,6 +2,7 @@ package com.example.david.myapplication;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -32,13 +33,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_NAME +
-                " (ID INTEGER PRIMARY KEY AUTOINCREMENT, HEIGHT INTEGER, WEIGHT INTEGER, ACTIVITY_LEVEL INTEGER)");
-        db.execSQL("CREATE TABLE"+ TABLE_NAME2+"(WORKOUT_NAME VARCHAR, INTENSITY VARCHAR, LENGTH INTEGER, CALORIES_BURNED INTEGER)");
     }
 
     @Override
@@ -55,6 +54,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COL_3, weight);
         contentValues.put(COL_4, activityLevel);
         long result = db.insert(TABLE_NAME, null, contentValues);
+
+        db.close();
         if (result == -1){
             return false;
         }
@@ -70,6 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COL_7, length);
         contentValues.put(COL_8, calories_burned);
         long result2 = db.insert(TABLE_NAME2, null, contentValues);
+        db.close();
         if (result2 == -1){
             return false;
         }
@@ -77,10 +79,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
+    public int getCount() {
+        String countQuery = "SELECT * FROM " + TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        cursor.close();
+        return cursor.getCount();
+    }
+
     // closing database
     public void closeDB() {
         SQLiteDatabase db = this.getReadableDatabase();
         if (db != null && db.isOpen())
             db.close();
+    }
+
+    public boolean doesTableExist(String tableName, boolean openDb) {
+
+        SQLiteDatabase mDatabase = this.getReadableDatabase();
+        if(openDb) {
+            if(mDatabase == null || !mDatabase.isOpen()) {
+                mDatabase = getReadableDatabase();
+            }
+
+            if(!mDatabase.isReadOnly()) {
+                mDatabase.close();
+                mDatabase = getReadableDatabase();
+            }
+        }
+
+        Cursor cursor = mDatabase.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+tableName+"'", null);
+        if(cursor!=null) {
+            if(cursor.getCount()>0) {
+                cursor.close();
+                return true;
+            }
+            cursor.close();
+        }
+        return false;
     }
 }
